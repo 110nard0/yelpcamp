@@ -1,4 +1,5 @@
 import Campground from './models/campground.js'
+import ejsMate from 'ejs-mate'
 import express from 'express'
 import methodOverride from 'method-override'
 import mongoose from 'mongoose'
@@ -15,6 +16,7 @@ const app = express()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+app.engine('ejs', ejsMate)
 app.set('views', path.join(__dirname, '/views'))
 app.set('view engine', 'ejs')
 
