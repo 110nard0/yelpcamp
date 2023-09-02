@@ -3,6 +3,7 @@ import Campground from './models/campground.js'
 import catchAsync from './utils/catchAsync.js'
 import ejsMate from 'ejs-mate'
 import express from 'express'
+import Joi from 'joi'
 import methodOverride from 'method-override'
 import mongoose from 'mongoose'
 import path from 'path'
@@ -25,6 +26,27 @@ app.set('view engine', 'ejs')
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 
+const campgroundSchema = Joi.object({
+	campground: Joi.object({
+		title: Joi.string()
+			.required(),
+
+		image: Joi.string()
+			.required(),
+
+		price: Joi.number()
+			.min(0)
+			.required(),
+
+		location: Joi.string()
+			.required(),
+
+		description: Joi.string()
+			.required(),
+
+	}).required()
+})
+
 app.get('/', (req, res) => {
 	res.render('home')
 })
@@ -39,6 +61,11 @@ app.get('/campgrounds/new', (req, res) => {
 })
 
 app.post('/campgrounds', catchAsync(async (req, res, next) => {
+	const { error } = campgroundSchema.validate(req.body)
+	if (error) {
+		const msg = error.details.map(el => el.message).join(',')
+		throw new AppError(400, msg)
+	}
 	const campground = new Campground(req.body.campground)
 	await campground.save()
 	res.redirect(`/campgrounds/${campground._id}`)
