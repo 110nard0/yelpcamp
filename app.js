@@ -85,7 +85,7 @@ app.put('/campgrounds/:id', validateCampground, catchAsync(async (req, res) => {
 
 app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
 	await Campground.findByIdAndDelete(req.params.id)
-	res.redirect('/campgrounds/')
+	res.redirect('/campgrounds')
 }))
 
 app.post('/campgrounds/:id/reviews', validateReview, catchAsync(async (req, res) => {
