@@ -7,7 +7,7 @@ import path from 'path'
 
 import AppError from './utils/AppError.js'
 import Campground from './models/campground.js'
-import { campgroundSchema } from './schemas/schema.js'
+import { campgroundSchema, reviewSchema } from './schemas/schema.js'
 import catchAsync from './utils/catchAsync.js'
 import Review from './models/review.js'
 import campground from './models/campground.js'
@@ -31,6 +31,16 @@ app.use(methodOverride('_method'))
 
 const validateCampground = (req, res, next) => {
 	const { error } = campgroundSchema.validate(req.body)
+	if (error) {
+		const msg = error.details.map(el => el.message).join(',')
+		throw new AppError(400, msg)
+	} else {
+		next()
+	}
+}
+
+const validateReview = (req, res, next) => {
+	const { error } = reviewSchema.validate(req.body)
 	if (error) {
 		const msg = error.details.map(el => el.message).join(',')
 		throw new AppError(400, msg)
@@ -78,7 +88,7 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
 	res.redirect('/campgrounds/')
 }))
 
-app.post('/campgrounds/:id/reviews', catchAsync(async (req, res) => {
+app.post('/campgrounds/:id/reviews', validateReview, catchAsync(async (req, res) => {
 	const { id } = req.params
 	const campground = await Campground.findById(id)
 	const review = new Review(req.body.review)
