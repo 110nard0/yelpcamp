@@ -1,13 +1,16 @@
-import AppError from './utils/AppError.js'
-import Campground from './models/campground.js'
-import { campgroundSchema } from './schemas/schema.js'
-import catchAsync from './utils/catchAsync.js'
 import ejsMate from 'ejs-mate'
 import express from 'express'
 import { fileURLToPath } from 'url'
 import methodOverride from 'method-override'
 import mongoose from 'mongoose'
 import path from 'path'
+
+import AppError from './utils/AppError.js'
+import Campground from './models/campground.js'
+import { campgroundSchema } from './schemas/schema.js'
+import catchAsync from './utils/catchAsync.js'
+import Review from './models/review.js'
+import campground from './models/campground.js'
 
 mongoose.connect('mongodb://localhost:27017/yelpCamp')
 
@@ -73,6 +76,17 @@ app.put('/campgrounds/:id', validateCampground, catchAsync(async (req, res) => {
 app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
 	await Campground.findByIdAndDelete(req.params.id)
 	res.redirect('/campgrounds/')
+}))
+
+app.post('/campgrounds/:id/reviews', catchAsync(async (req, res) => {
+	const { id } = req.params
+	const campground = await Campground.findById(id)
+	const review = new Review(req.body.review)
+	review.camp = campground._id
+	campground.reviews.push(review)
+	await review.save()
+	await campground.save()
+	res.redirect(`/campgrounds/${id}`)
 }))
 
 app.all('*', (req, res, next) => {
