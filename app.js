@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import methodOverride from 'method-override'
 import mongoose from 'mongoose'
 import path from 'path'
+import session from 'express-session'
 
 import AppError from './utils/AppError.js'
 import campgrounds from './routes/campgrounds.js'
@@ -18,6 +19,16 @@ db.once('open', () => { console.log('DATABASE CONNECTED') })
 const app = express()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+const sessionConfig = {
+    secret: 'insertsafesecret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+}
 
 app.engine('ejs', ejsMate)
 app.set('views', path.join(__dirname, '/views'))
@@ -26,24 +37,25 @@ app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
+app.use(session(sessionConfig))
 
 app.use('/campgrounds', campgrounds)
 app.use('/campgrounds/:id/reviews', reviews)
 
 app.get('/', (req, res) => {
-	res.render('home')
+    res.render('home')
 })
 
 app.all('*', (req, res, next) => {
-	next(new AppError(404, 'PAGE NOT FOUND'))
+    next(new AppError(404, 'PAGE NOT FOUND'))
 })
 
 app.use((err, req, res, next) => {
-	const { statusCode = 500 } = err
-	if (!err.message) err.message = 'SOMETHING WENT WRONG'
-	res.status(statusCode).render('error', { err })
+    const { statusCode = 500 } = err
+    if (!err.message) err.message = 'SOMETHING WENT WRONG'
+    res.status(statusCode).render('error', { err })
 })
 
 app.listen(3000, () => {
-	console.log('SERVING ON PORT 3000')
+    console.log('SERVING ON PORT 3000')
 })
