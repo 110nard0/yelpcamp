@@ -1,7 +1,6 @@
 import express from 'express'
 import passport from 'passport'
 
-import AppError from '../utils/AppError.js'
 import catchAsync from '../utils/catchAsync.js'
 import { storeReturnUrl } from '../utils/middleware.js'
 import User from '../models/user.js'
