@@ -10,10 +10,9 @@ import path from 'path'
 import session from 'express-session'
 
 import AppError from './utils/AppError.js'
-import User from './models/user.js'
-
 import campgroundRoutes from './routes/campgrounds.js'
 import reviewRoutes from './routes/reviews.js'
+import User from './models/user.js'
 import userRoutes from './routes/users.js'
 
 mongoose.connect('mongodb://localhost:27017/yelpCamp')

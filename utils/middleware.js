@@ -1,9 +1,15 @@
-const isLoggedIn = (req, res, next) => {
+export const isLoggedIn = (req, res, next) => {
 	if (!req.isAuthenticated()) {
-		req.flash('error', 'You must be signed in to create a new campground!')
+		req.session.returnUrl = req.originalUrl
+		req.flash('error', 'You must be signed in first!')
 		return res.redirect('/login')
 	}
 	next()
 }
 
-export default isLoggedIn
+export const storeReturnUrl = (req, res, next) => {
+	if (req.session.returnUrl) {
+		res.locals.returnUrl = req.session.returnUrl
+	}
+	next()
+}

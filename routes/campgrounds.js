@@ -1,11 +1,10 @@
 import express from 'express'
 
 import AppError from '../utils/AppError.js'
-import catchAsync from '../utils/catchAsync.js'
-import isLoggedIn from '../utils/middleware.js'
-
 import Campground from '../models/campground.js'
 import { campgroundSchema } from '../schemas/schema.js'
+import catchAsync from '../utils/catchAsync.js'
+import { isLoggedIn } from '../utils/middleware.js'
 
 const router = express.Router()
 

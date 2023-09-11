@@ -1,10 +1,9 @@
 import express from 'express'
 
 import AppError from '../utils/AppError.js'
-import catchAsync from '../utils/catchAsync.js'
-
 import Campground from '../models/campground.js'
-import isLoggedIn from '../utils/middleware.js'
+import catchAsync from '../utils/catchAsync.js'
+import { isLoggedIn } from '../utils/middleware.js'
 import Review from '../models/review.js'
 import { reviewSchema } from '../schemas/schema.js'
 
