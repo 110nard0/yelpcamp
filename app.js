@@ -2,14 +2,19 @@ import ejsMate from 'ejs-mate'
 import express from 'express'
 import { fileURLToPath } from 'url'
 import flash from 'connect-flash'
+import LocalStrategy from 'passport-local'
 import methodOverride from 'method-override'
 import mongoose from 'mongoose'
+import passport from 'passport'
 import path from 'path'
 import session from 'express-session'
 
 import AppError from './utils/AppError.js'
-import campgrounds from './routes/campgrounds.js'
-import reviews from './routes/reviews.js'
+import User from './models/user.js'
+
+import campgroundRoutes from './routes/campgrounds.js'
+import reviewRoutes from './routes/reviews.js'
+import userRoutes from './routes/users.js'
 
 mongoose.connect('mongodb://localhost:27017/yelpCamp')
 
@@ -40,6 +45,12 @@ app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 app.use(session(sessionConfig))
 
+app.use(passport.initialize())
+app.use(passport.session())
+passport.use(new LocalStrategy(User.authenticate()))
+passport.serializeUser(User.serializeUser())
+passport.deserializeUser(User.deserializeUser())
+
 app.use(flash())
 app.use((req, res, next) => {
 	res.locals.success = req.flash('success')
@@ -47,8 +58,9 @@ app.use((req, res, next) => {
 	next()
 })
 
-app.use('/campgrounds', campgrounds)
-app.use('/campgrounds/:id/reviews', reviews)
+app.use('/campgrounds', campgroundRoutes)
+app.use('/campgrounds/:id/reviews', reviewRoutes)
+app.use('/', userRoutes)
 
 app.get('/', (req, res) => {
 	res.render('home')
