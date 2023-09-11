@@ -1,4 +1,5 @@
 import express from 'express'
+import passport from 'passport'
 
 import AppError from '../utils/AppError.js'
 import catchAsync from '../utils/catchAsync.js'
@@ -22,5 +23,14 @@ router.post('/register', catchAsync(async (req, res) => {
 		res.redirect('/register')
 	}
 }))
+
+router.get('/login', (req, res) => {
+	res.render('users/login')
+})
+
+router.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), (req, res) => {
+	req.flash('success', 'Welcome back to Yelp Camp!')
+	res.redirect('/campgrounds')
+})
 
 export default router
