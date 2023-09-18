@@ -5,7 +5,7 @@ export const index = async (req, res) => {
 	res.render('campgrounds/index', { campgrounds })
 }
 
-export const renderNewForm = (req, res) => {
+export const renderNew = (req, res) => {
 	res.render('campgrounds/new')
 }
 
@@ -31,7 +31,7 @@ export const showCampground = async (req, res) => {
 	res.render('campgrounds/show', { campground })
 }
 
-export const renderEditForm = async (req, res) => {
+export const renderEdit = async (req, res) => {
 	const campground = await Campground.findById(req.params.id)
 	if (!campground) {
 		req.flash('error', 'Cannot find campground!')
@@ -40,7 +40,7 @@ export const renderEditForm = async (req, res) => {
 	res.render('campgrounds/edit', { campground })
 }
 
-export const editCampground = async (req, res) => {
+export const updateCampground = async (req, res) => {
 	const { id } = req.params
 	const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground })
 	req.flash('success', 'Successfully updated campground!')
