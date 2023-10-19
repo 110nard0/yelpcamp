@@ -1,7 +1,7 @@
 import AppError from './AppError.js'
 import Campground from '../models/campground.js'
 import Review from '../models/review.js'
-import { campgroundSchema, reviewSchema } from '../schemas/schema.js'
+import { campgroundSchema, reviewSchema } from './schema.js'
 
 export const isAuthor = async (req, res, next) => {
 	const { id } = req.params
