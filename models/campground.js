@@ -4,12 +4,6 @@ import Review from './review.js'
 const Schema = mongoose.Schema
 const CampgroundSchema = new Schema({
 	title: String,
-	images: [
-		{
-			url: String,
-			filename: String
-		}
-	],
 	price: Number,
 	location: String,
 	description: String,
@@ -17,6 +11,12 @@ const CampgroundSchema = new Schema({
 		type: Schema.Types.ObjectId,
 		ref: 'User'
 	},
+	images: [
+		{
+			url: String,
+			filename: String
+		}
+	],
 	reviews: [
 		{
 			type: Schema.Types.ObjectId,
