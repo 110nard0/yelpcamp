@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import ejsMate from 'ejs-mate'
 import express from 'express'
 import { fileURLToPath } from 'url'
