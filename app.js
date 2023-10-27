@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { default as connectMongoDBSession } from 'connect-mongodb-session'
 import ejsMate from 'ejs-mate'
 import express from 'express'
 import { fileURLToPath } from 'url'
@@ -19,7 +20,8 @@ import User from './models/user.js'
 import userRoutes from './routes/users.js'
 import * as urls from './utils/helmetConfig.js'
 
-mongoose.connect('mongodb://localhost:27017/yelpCamp')
+const dbURL = process.env.DB_URL || 'mongodb://localhost:27017/yelpCamp'
+mongoose.connect(dbURL)
 
 const db = mongoose.connection
 db.on('error', console.error.bind(console, 'CONECTION ERROR'))
@@ -28,9 +30,22 @@ db.once('open', () => { console.log('DATABASE CONNECTED') })
 const app = express()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+const secret = process.env.SECRET_KEY || 'insertsafesecret'
+const mongoDBStore = new connectMongoDBSession(session)
+const store = new mongoDBStore({
+	url: dbURL,
+	secret,
+	touchAfter: 24 * 3600,
+})
+store.on("error", function(e) {
+	console.log("SESSION STORE ERROR", e)
+})
+
 const sessionConfig = {
+	store,
+	secret,
 	name: 'session',
-	secret: 'insertsafesecret',
 	resave: false,
 	saveUninitialized: true,
 	cookie: {
@@ -40,6 +55,7 @@ const sessionConfig = {
 		maxAge: 1000 * 60 * 60 * 24 * 7
 	}
 }
+
 
 app.engine('ejs', ejsMate)
 app.set('views', path.join(__dirname, '/views'))
@@ -73,9 +89,7 @@ app.use(
 	})
 )
 
-
 app.use((req, res, next) => {
-	console.log(req.query)
 	res.locals.user = req.user
 	res.locals.error = req.flash('error')
 	res.locals.success = req.flash('success')
@@ -100,6 +114,7 @@ app.use((err, req, res, next) => {
 	res.status(statusCode).render('error', { err })
 })
 
-app.listen(3000, () => {
-	console.log('SERVING ON PORT 3000')
+const port = parseInt(process.env.PORT) || 3000
+app.listen(port, () => {
+	console.log(`SERVING ON PORT ${port}`)
 })
