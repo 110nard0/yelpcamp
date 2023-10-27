@@ -1,5 +1,4 @@
 import 'dotenv/config'
-// import { default as connectMongoDBSession } from 'connect-mongodb-session'
 import ejsMate from 'ejs-mate'
 import express from 'express'
 import { fileURLToPath } from 'url'
@@ -33,12 +32,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const secret = process.env.SECRET_KEY || 'insertsafesecret'
-// const mongoDBStore = new connectMongoDBSession(session)
-// const store = new mongoDBStore({
-// 	url: dbURL,
-// 	secret,
-// 	touchAfter: 24 * 3600,
-// })
 const store = MongoStore.create({
     mongoUrl: dbURL,
     touchAfter: 24 * 60 * 60,
@@ -127,6 +120,3 @@ const port = parseInt(process.env.PORT) || 3000
 app.listen(port, () => {
 	console.log(`SERVING ON PORT ${port}`)
 })
-
-console.log(dbURL.slice(0, 20))
-console.log(port)
