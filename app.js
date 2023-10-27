@@ -28,9 +28,9 @@ db.on('error', console.error.bind(console, 'CONECTION ERROR'))
 db.once('open', () => { console.log('DATABASE CONNECTED') })
 
 const app = express()
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-
 const secret = process.env.SECRET_KEY || 'insertsafesecret'
 const store = MongoStore.create({
     mongoUrl: dbURL,
@@ -38,7 +38,7 @@ const store = MongoStore.create({
     crypto: {
         secret
     }
-});
+})
 
 store.on("error", function(e) {
 	console.log("SESSION STORE ERROR", e)
@@ -52,7 +52,7 @@ const sessionConfig = {
 	saveUninitialized: true,
 	cookie: {
 		httpOnly: true,
-		secure: true,
+		// secure: true,
 		expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
 		maxAge: 1000 * 60 * 60 * 24 * 7
 	}
