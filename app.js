@@ -3,9 +3,11 @@ import ejsMate from 'ejs-mate'
 import express from 'express'
 import { fileURLToPath } from 'url'
 import flash from 'connect-flash'
+import helmet from 'helmet'
 import LocalStrategy from 'passport-local'
 import methodOverride from 'method-override'
 import mongoose from 'mongoose'
+import mongoSanitize from 'express-mongo-sanitize'
 import passport from 'passport'
 import path from 'path'
 import session from 'express-session'
@@ -15,6 +17,7 @@ import campgroundRoutes from './routes/campgrounds.js'
 import reviewRoutes from './routes/reviews.js'
 import User from './models/user.js'
 import userRoutes from './routes/users.js'
+import * as urls from './utils/helmetConfig.js'
 
 mongoose.connect('mongodb://localhost:27017/yelpCamp')
 
@@ -26,11 +29,13 @@ const app = express()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const sessionConfig = {
+	name: 'session',
 	secret: 'insertsafesecret',
 	resave: false,
 	saveUninitialized: true,
 	cookie: {
 		httpOnly: true,
+		// secure: true,
 		expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
 		maxAge: 1000 * 60 * 60 * 24 * 7
 	}
@@ -52,7 +57,25 @@ passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
 app.use(flash())
+app.use(mongoSanitize({ replaceWith: '_' }))
+app.use(
+	helmet.contentSecurityPolicy({
+		directives: {
+			defaultSrc: [],
+			objectSrc: [],
+			workerSrc: ["'self'", "blob:"],
+			fontSrc: ["'self'", ...urls.fontSrcUrls],
+			connectSrc: ["'self'", ...urls.connectSrcUrls],
+			imgSrc: ["'self'", "blob:", "data:", ...urls.imgSrcUrls],
+			styleSrc: ["'self'", "'unsafe-inline'", ...urls.styleSrcUrls],
+			scriptSrc: ["'unsafe-inline'", "'self'", ...urls.scriptSrcUrls],
+		},
+	})
+)
+
+
 app.use((req, res, next) => {
+	console.log(req.query)
 	res.locals.user = req.user
 	res.locals.error = req.flash('error')
 	res.locals.success = req.flash('success')
@@ -80,4 +103,3 @@ app.use((err, req, res, next) => {
 app.listen(3000, () => {
 	console.log('SERVING ON PORT 3000')
 })
-
