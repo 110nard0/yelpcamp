@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { default as connectMongoDBSession } from 'connect-mongodb-session'
+// import { default as connectMongoDBSession } from 'connect-mongodb-session'
 import ejsMate from 'ejs-mate'
 import express from 'express'
 import { fileURLToPath } from 'url'
@@ -9,6 +9,7 @@ import LocalStrategy from 'passport-local'
 import methodOverride from 'method-override'
 import mongoose from 'mongoose'
 import mongoSanitize from 'express-mongo-sanitize'
+import MongoStore from 'connect-mongo'
 import passport from 'passport'
 import path from 'path'
 import session from 'express-session'
@@ -32,12 +33,20 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const secret = process.env.SECRET_KEY || 'insertsafesecret'
-const mongoDBStore = new connectMongoDBSession(session)
-const store = new mongoDBStore({
-	url: dbURL,
-	secret,
-	touchAfter: 24 * 3600,
-})
+// const mongoDBStore = new connectMongoDBSession(session)
+// const store = new mongoDBStore({
+// 	url: dbURL,
+// 	secret,
+// 	touchAfter: 24 * 3600,
+// })
+const store = MongoStore.create({
+    mongoUrl: dbURL,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret
+    }
+});
+
 store.on("error", function(e) {
 	console.log("SESSION STORE ERROR", e)
 })
@@ -50,7 +59,7 @@ const sessionConfig = {
 	saveUninitialized: true,
 	cookie: {
 		httpOnly: true,
-		// secure: true,
+		secure: true,
 		expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
 		maxAge: 1000 * 60 * 60 * 24 * 7
 	}
@@ -118,3 +127,6 @@ const port = parseInt(process.env.PORT) || 3000
 app.listen(port, () => {
 	console.log(`SERVING ON PORT ${port}`)
 })
+
+console.log(dbURL.slice(0, 20))
+console.log(port)
